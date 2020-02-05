@@ -1,0 +1,143 @@
+---
+title: "Creating custom functions in R"
+authore: Jeremy Schreifels
+output: html_notebook
+---
+
+You are already familiar with functions in R. Every time you use library(), readcsv(), mean(), ggplot(), or other action in R you are calling a function. You can use the power of custom functions to improve your own code. Some advantages of using functions, include:
+
+1. You can reduce the risk of copy/paste errors (e.g., forgetting to update a variable in the pasted code).
+2. You can easily  document your code and use descriptive names, making it easier for you and others to read your code in the future.
+3. If changes are needed, you only have to make the changes to one code block (i.e., the code in the function).
+4. You can limit the scope of your variables to only the function.
+
+In general, you should consider creating a function whenever you are copying and pasting a code block that doesn't require signficant changes. 
+
+Let's take a look at this charting example that doesn't use custom functions...
+
+```{r}
+#load libraries
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(datasets) # for this example we'll use the stackloss data
+
+#air flow at nitric acid plant
+#calculate stats for air flow
+airflow_avg <- mean(stackloss$Air.Flow)
+airflow_sd <- sd(stackloss$Air.Flow)
+airflow_se <- airflow_sd/sqrt(length(stackloss$Air.Flow))
+
+#plot a histogram of air flow w/ select stats in text boxes
+airflow_hist <- ggplot(data = stackloss, mapping = aes(stackloss$Air.Flow)) +
+    geom_histogram(bins=6) +
+    xlab("UOM") +
+    ggtitle("Air Flow at Nitric Acid Plant") +
+    annotate("text", x=airflow_avg, y=10, label= paste("Avg: ", round(airflow_avg, 2), sep="" )) +
+    annotate("text", x=airflow_avg, y=9.5, label= paste("StDev: ", round(airflow_sd, 2), sep="" )) +
+    annotate("text", x=airflow_avg, y=9, label= paste("StErr: ", round(airflow_se, 2), sep="")) +
+    theme_economist_white(gray_bg=TRUE) + scale_colour_economist() +
+    theme(legend.position = "none")  
+
+airflow_hist
+
+#water temp at nitric acid plant
+#calculate stats for water temp
+watertemp_avg <- mean(stackloss$Water.Temp)
+watertemp_sd <- sd(stackloss$Water.Temp)
+watertemp_se <- watertemp_sd/sqrt(length(stackloss$Water.Temp))
+
+#plot a histogram of water temp w/ select stats in text boxes
+watertemp_hist <- ggplot(data = stackloss, mapping = aes(stackloss$Water.Temp)) +
+    geom_histogram(bins=6) +
+    xlab("UOM") +
+    ggtitle("Water Temp at Nitric Acid Plant") +
+    annotate("text", x=watertemp_avg, y=10, label= paste("Avg: ", round(watertemp_avg, 2), sep="" )) +
+    annotate("text", x=watertemp_avg, y=9.5, label= paste("StDev: ", round(watertemp_sd, 2), sep="" )) +
+    annotate("text", x=watertemp_avg, y=9, label= paste("StErr: ", round(watertemp_se, 2), sep="")) +
+    theme_economist_white(gray_bg=TRUE) + scale_colour_economist() +
+    theme(legend.position = "none")  
+
+watertemp_hist
+
+#stack loss at nitric acid plant
+#calculate stats for stack loss
+stackloss_avg <- mean(stackloss$stack.loss)
+stackloss_sd <- sd(stackloss$stack.loss)
+stackloss_se <- watertemp_sd/sqrt(length(stackloss$stack.loss))
+
+#plot a histogram of stack loss w/ select stats in text boxes
+stackloss_hist <- ggplot(data = stackloss, mapping = aes(stackloss$stack.loss)) +
+    geom_histogram(bins=6) +
+    xlab("UOM") +
+    ggtitle("Stack Loss at Nitric Acid Plant") +
+    annotate("text", x=stackloss_avg, y=10, label= paste("Avg: ", round(stackloss_avg, 2), sep="" )) +
+    annotate("text", x=stackloss_avg, y=9.5, label= paste("StDev: ", round(stackloss_sd, 2), sep="" )) +
+    annotate("text", x=stackloss_avg, y=9, label= paste("StErr: ", round(stackloss_se, 2), sep="")) +
+    theme_economist_white(gray_bg=TRUE) + scale_colour_economist() +
+    theme(legend.position = "none")  
+
+stackloss_hist
+
+
+```
+
+There's a lot of replication from copying and pasting. There's also at least one copy/paste error (the stackloss_se calculation uses the watertemp_sd instead of stackloss_sd). This could be simplified, streamlined, and more accurate with a simple function. Here's an example (note: you don't need to reload the libraries but they are included to make it a complete alternative to the above code):
+
+```{r}
+#load libraries
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(datasets) # for this example we'll use the stackloss data
+
+# function to create a histogram plot with summary statistics in text boxes
+# function inputs: dataframe, data, histogram title
+# function output: histogram with select stats in text boxes
+histogram_statlabels <- function(xdf, xdata, hist_title) {
+  #calculate relevant statistics
+  xdata_avg <- mean(xdata)
+  xdata_sd <- sd(xdata)
+  xdata_se <- xdata_sd/sqrt(length(xdata))
+  
+  #plot a histogram of data w/ select stats in text boxes
+  xdata_hist <- ggplot(data = xdf, mapping = aes(xdata)) +
+    geom_histogram(bins=6) +
+    xlab("UOM") +
+    ggtitle(hist_title) +
+    annotate("text", x=xdata_avg, y=10, label= paste("Avg: ", round(xdata_avg, 2), sep="" )) +
+    annotate("text", x=xdata_avg, y=9.5, label= paste("StDev: ", round(xdata_sd, 2), sep="" )) +
+    annotate("text", x=xdata_avg, y=9, label= paste("StErr: ", round(xdata_se, 2), sep="")) +
+    theme_economist_white(gray_bg=TRUE) + scale_colour_economist() +
+    theme(legend.position = "none")  
+
+  xdata_hist
+}
+
+#create air flow histogram
+histogram_statlabels(stackloss, stackloss$Air.Flow, "Air Flow at Nitric Acid Plant")
+#create water temp histogram
+histogram_statlabels(stackloss, stackloss$Water.Temp, "Water Temp at Nitric Acid Plant")
+# create stack loss histogram
+histogram_statlabels(stackloss, stackloss$stack.loss, "Stack Loss at Nitric Acid Plant")
+
+```
+
+The second code example with the function is shorter and easier to read. 
+
+Now, let's assume you want to make some changes. Perhaps you want to move the labels from the position of the average value to the max value, or change the plot theme or colors. In the first example you would have to change every occurence and hope you don't miss any. In the second example with a function, you only need to make the changes in the function.
+
+If you want to add another histogram for acid concentration, the first example requires you to create another copy of the histogram code and update the relevant values for the acid concentration. In the second example, you simply call the function again:
+
+```{r}
+#create acid concentration histogram
+histogram_statlabels(stackloss, stackloss$Acid.Conc., "Acid Concentration at Nitric Acid Plant")
+```
+
+This is a quick and dirty function, there are ways to streamline it, change fixed values to input parameters (e.g., the number of bins), or break it into several smaller functions. You should design your function based on the time available and cope of the function -- is it a solution for a single project or is it something you might want to reuse in future projects. If it's the latter, you should consider how to make it more generic and create your own library for your functions. 
+
+Creating your own functions in R might seem intimidating, but it is quite easy and custom functions can reduce errors, improve consistency, and enhance readability. 
+
+For further information, refer to:
+- [How to write and debug an R function](https://www.r-bloggers.com/how-to-write-and-debug-an-r-function/) by Slawa Rokicki
+- [Writing Functions in R](https://rpubs.com/williamsurles/292234) by William Surles
