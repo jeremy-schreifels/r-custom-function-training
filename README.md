@@ -2,7 +2,7 @@
 A training resource on how to create custom functions in R
 ---
 title: "Creating custom functions in R"
-authore: Jeremy Schreifels
+author: Jeremy Schreifels
 output: html_notebook
 ---
 
