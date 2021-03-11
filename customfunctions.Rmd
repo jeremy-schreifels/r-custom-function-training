@@ -134,7 +134,7 @@ If you want to add another histogram for acid concentration, the first example r
 histogram_statlabels(stackloss, stackloss$Acid.Conc., "Acid Concentration at Nitric Acid Plant")
 ```
 
-This is a quick and dirty function, there are ways to streamline it, change fixed values to input parameters (e.g., the number of bins), or break it into several smaller functions. You should design your function based on the time available and cope of the function -- is it a solution for a single project or is it something you might want to reuse in future projects. If it's the latter, you should consider how to make it more generic and create your own library for your functions. 
+This is a quick and dirty function, there are ways to streamline it, change fixed values to input parameters (e.g., the number of bins), or break it into several smaller functions. You should design your function based on the time available and scope of the function -- is it a solution for a single project or is it something you might want to reuse in future projects. If it's the latter, you should consider how to make it more generic and create your own library for your functions. 
 
 Creating your own functions in R might seem intimidating, but it is quite easy and custom functions can reduce errors, improve consistency, and enhance readability. 
 
